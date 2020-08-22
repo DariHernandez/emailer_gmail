@@ -6,12 +6,32 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import sys, os
+import os, time, json
 
+#Get password and email by file
+file = os.path.dirname (__file__) + '/user.json'
 
-my_user = 'cidentymx@gmail.com'
-my_password = 'duscordia de ceguera temporal 87'
+userInfo = {} 
 
+# Open user file. If file dooesn't exist, make new file and store information
+try:
+    with open(file) as f_obj:
+        userInfo = json.load(f_obj)
+except FileNotFoundError: 
+    mail = input("What is your gmail address? ")
+    password = input("What is your password? ")
+    credential = {'mail': mail, 'password': password }
+    with open(file, 'w') as f_obj:
+        json.dump(credential, f_obj)
+        print("We'll remember you when you come back, " + credential['mail'] + "!")
+else:
+    print("Welcome back, " + userInfo['mail'] + " seending emails...")
+
+with open(file) as f_obj:
+    userInfo = json.load(f_obj) 
+
+my_user = userInfo['mail']
+my_password = userInfo['password']
 
 #Open browser and file password
 browser = webdriver.Chrome()
@@ -61,6 +81,9 @@ def send_mail (to, subject, body, auto_send = True):
         sendBtn.click()
 
 google_access(my_user, my_password)
+time.sleep(3)
 send_mail ('hernandezdarifrancisco@gmail.com', 'email example', 'this is a email example eith selenium')
-
+time.sleep(3)
+browser.close()
+print ('Emails correct sent')
 
