@@ -9,31 +9,90 @@ from selenium.webdriver.support import expected_conditions as EC
 import os, time, json
 
 #Get password and email by file
-file = os.path.dirname (__file__) + '/user.json'
+fileUser = os.path.dirname (__file__) + '/user.json'
+fileMails = os.path.dirname (__file__) + '/mails.json'
 
+mailsInfo = []
 userInfo = {} 
 
-# Open user file. If file dooesn't exist, make new file and store information
-try:
-    with open(file) as f_obj:
-        userInfo = json.load(f_obj)
-except FileNotFoundError: 
-    mail = input("What is your gmail address? ")
+def capture_user_info (): 
+    """ Input user information """
+    mail = input("Not user file found. \nWhat is your gmail address? ")
     password = input("What is your password? ")
-    credential = {'mail': mail, 'password': password }
-    with open(file, 'w') as f_obj:
-        json.dump(credential, f_obj)
-        print("We'll remember you when you come back, " + credential['mail'] + "!")
+    info = {'mail': mail, 'password': password }
+    return info
+
+def capture_email_info (): 
+    """ Input email information """
+    mails = []
+
+    while True: 
+        addressee = input('\naddressee: ')
+        subject = input('subject: ')
+        body = input('body: ')
+        otherMail = input ('\nother email (y/n) ')
+
+        mail = {'addresse' : addressee, 'subject' : subject, 'body' : body}
+        mails.append(mail)
+
+        if otherMail == 'y': 
+            continue
+        else: 
+            break
+
+    return mails        
+
+
+def open_json (file, write_menssage, read_menssage): 
+    """ Open and read or write json file"""
+    try:
+        with open(file) as f_obj:
+            print(read_menssage)
+            return json.load(f_obj)
+    except FileNotFoundError: 
+        info = capture_user_info()
+
+        with open(file, 'w') as f_obj:
+            json.dump(info, f_obj)
+            print(confim_menssage)
+
+        return userInfo
+
+"""
+# Open USER file. If file dooesn't exist, make new file and store information
+try:
+    with open(fileMails) as f_obj:
+        mailsInfo = json.load(f_obj)
+except FileNotFoundError: 
+    mails = []
+    print ('\nNot mails file found. Register the mail information')
+
+    while True: 
+        addressee = input('\naddressee: ')
+        subject = input('subject: ')
+        body = input('body: ')
+        otherMail = input ('\nother email (y/n) ')
+
+        mail = {'addresse' : addressee, 'subject' : subject, 'body' : body}
+        mails.append(mail)
+
+        if otherMail == 'y': 
+            continue
+        else: 
+            break        
+
+    with open(fileMails, 'w') as f_obj:
+        json.dump(mails, f_obj)
+        print('Emails saved')
 else:
-    print("Welcome back, " + userInfo['mail'] + " seending emails...")
+    print('Sending emails...')
 
-with open(file) as f_obj:
-    userInfo = json.load(f_obj) 
+#Reed USER file information
+with open(fileMails) as f_obj:
+    mailsInfo = json.load(f_obj) 
+"""
 
-my_user = userInfo['mail']
-my_password = userInfo['password']
-
-#Open browser and file password
+#Open browser
 browser = webdriver.Chrome()
 
 def google_access (user, password): 
@@ -80,10 +139,23 @@ def send_mail (to, subject, body, auto_send = True):
     if auto_send: 
         sendBtn.click()
 
-google_access(my_user, my_password)
+# Get user and information
+userInfo = open_json (fileUser, 'Your email and password has been saved.', 'Reading user information')
+
+my_user = userInfo['mail']
+my_password = userInfo['password']
+
+#Access to google/gmail acount and wait
+google_access(my_user, my_password) 
 time.sleep(3)
-send_mail ('hernandezdarifrancisco@gmail.com', 'email example', 'this is a email example eith selenium')
+
+#Send mails
+mailsInfo = open_json (fileMails, 'Emials information saved.', 'Reading mails information')
+for mail in mailsInfo:
+    send_mail (mail['addresse'], mail['subject'], mail['body'])
 time.sleep(3)
+
+#End and close
 browser.close()
 print ('Emails correct sent')
 
