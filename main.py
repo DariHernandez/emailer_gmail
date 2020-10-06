@@ -6,11 +6,12 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import os, time, json
+from rwJsonFile import readJsonFile, writeJsonFile
+import os, time
 
-#Get password and email by file
-fileUser = os.path.dirname (__file__) + '/user.json'
-fileMails = os.path.dirname (__file__) + '/mails.json'
+#Get files information
+fileUser = os.path.join(os.path.dirname (__file__), 'user.json')
+fileMails = os.path.join(os.path.dirname (__file__), 'mails.json')
 
 mailsInfo = []
 userInfo = {} 
@@ -42,58 +43,20 @@ def capture_email_info ():
 
     return mails        
 
-
-def open_json (file, write_menssage, read_menssage): 
-    """ Open and read or write json file"""
-    try:
-        with open(file) as f_obj:
-            print(read_menssage)
-            return json.load(f_obj)
-    except FileNotFoundError: 
-        info = capture_user_info()
-
-        with open(file, 'w') as f_obj:
-            json.dump(info, f_obj)
-            print(confim_menssage)
-
-        return userInfo
-
-"""
-# Open USER file. If file dooesn't exist, make new file and store information
-try:
-    with open(fileMails) as f_obj:
-        mailsInfo = json.load(f_obj)
-except FileNotFoundError: 
-    mails = []
-    print ('\nNot mails file found. Register the mail information')
-
-    while True: 
-        addressee = input('\naddressee: ')
-        subject = input('subject: ')
-        body = input('body: ')
-        otherMail = input ('\nother email (y/n) ')
-
-        mail = {'addresse' : addressee, 'subject' : subject, 'body' : body}
-        mails.append(mail)
-
-        if otherMail == 'y': 
-            continue
-        else: 
-            break        
-
-    with open(fileMails, 'w') as f_obj:
-        json.dump(mails, f_obj)
-        print('Emails saved')
-else:
-    print('Sending emails...')
-
-#Reed USER file information
-with open(fileMails) as f_obj:
-    mailsInfo = json.load(f_obj) 
-"""
-
-#Open browser
-browser = webdriver.Chrome()
+def open_json (file, typeInfo, write_menssage, read_menssage): 
+    """Get information from the json files"""
+    print(read_menssage)
+    info = readJsonFile(file)
+    if not info: 
+        if typeInfo == 'user': 
+            print ('Type your gmail info')
+            info = capture_user_info()
+        elif typeInfo == 'mail': 
+            print ('Type the emails info')
+            info = capture_email_info()
+        writeJsonFile (file, info)
+        print (write_menssage)
+    return info
 
 def google_access (user, password): 
     #Home acount page
@@ -139,19 +102,25 @@ def send_mail (to, subject, body, auto_send = True):
     if auto_send: 
         sendBtn.click()
 
+#Open browser
+print ('Open Browser')
+browser = webdriver.Chrome()
+
 # Get user and information
-userInfo = open_json (fileUser, 'Your email and password has been saved.', 'Reading user information')
+userInfo = open_json (fileUser, 'user', 'Your email and password has been saved.', 'Reading user information')
 
 my_user = userInfo['mail']
 my_password = userInfo['password']
 
 #Access to google/gmail acount and wait
+print ('Loggin')
 google_access(my_user, my_password) 
 time.sleep(3)
 
 #Send mails
-mailsInfo = open_json (fileMails, 'Emials information saved.', 'Reading mails information')
+mailsInfo = open_json (fileMails, 'mail', 'Emials information saved.', 'Reading mails information')
 for mail in mailsInfo:
+    print ('Sending email to %s' % (mail['addresse']))
     send_mail (mail['addresse'], mail['subject'], mail['body'])
 time.sleep(3)
 
