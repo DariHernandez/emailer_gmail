@@ -6,7 +6,7 @@ In basic html view of gmail, auto send emails.
 The frist time that you run the program, the script request your *gmail acount*, *email password* and *emails information*. 
 
 ### Install modules
-**$ pip install selenium**
+**$ pip3 install selenium**
 
 ### Run the script
 After only run the main file
