@@ -10,6 +10,7 @@ The frist time that you run the program, the script request your *gmail acount*,
 
 ### Run the script
 After only run the main file
+
 **$ python3 main.py**
 
 ### Update credentials
