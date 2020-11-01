@@ -1,7 +1,8 @@
 # emailer_gmail_selenium
 ## Description
-Using selenium, open Google Chrome as Web browser and access to gmail. 
-In basic html view of gmail, auto send emails. 
+This is a terminal project.
+Using **selenium**, open Google Chrome as Web browser and access to gmail. 
+In basic html view of gmail, **auto send emails.**
 ## How to use
 The frist time that you run the program, the script request your *gmail acount*, *email password* and *emails information*. 
 
